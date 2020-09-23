@@ -11,14 +11,7 @@ async function main() {
   }
   
   const instancesOf = await getYappData(yappId);
-
-  // TODO
-  for (const [className, instanceList] of Object.entries(instancesOf)) {
-    for (const obj of instanceList) {
-      delete obj.data;
-    }
-  }
-  document.getElementById("schedule").innerText = JSON.stringify(instancesOf);
+  render(instancesOf);
 }
 
 // Run the main function and display any error messages.

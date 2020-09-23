@@ -97,8 +97,8 @@ class ScheduleTrack extends YappObject {
   }
 
   resolveReferences(uuidToObj) {
-    this.scheduleItems = this.data.relationships["schedule-items"].data
-      .map(scheduleItemData => uuidToObj[scheduleItemData.id]);
+    this.events = this.data.relationships["schedule-items"].data
+      .map(eventData => uuidToObj[eventData.id]);
   }
 }
 
