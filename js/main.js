@@ -1,18 +1,7 @@
 "use strict";
 
-/**
- * Set the text in the ID/URL input field to the queried value.
- */
-function updateInputFromUrl() {
-  const value = getQuery().q;
-
-  if (value !== undefined) {
-    document.getElementById("yapp-id-input").value = value;
-  }
-}
-
 async function main() {
-  updateInputFromUrl();
+  updateFormFromUrl();
 
   const yappID = getYappID();
   if (yappID === null) {

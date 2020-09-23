@@ -41,3 +41,14 @@ function getYappID() {
     return split[split.length - 1];
   }
 }
+
+/**
+ * Set the text in the ID/URL input field to match the query string.
+ */
+function updateFormFromUrl() {
+  const value = getQuery().q;
+
+  if (value !== undefined) {
+    document.getElementById("yapp-id-input").value = value;
+  }
+}
