@@ -1,0 +1,7 @@
+#hint {
+  display: none;
+}
+
+#hint:only-child {
+  display: unset;
+}
