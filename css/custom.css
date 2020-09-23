@@ -23,3 +23,11 @@
 .collapse-toggle-anchor, .collapse-toggle-anchor:hover {
   color: inherit;
 }
+
+.yapp-location::before {
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  content: '\f3c5';
+  display: inline-block;
+  margin-right: 0.5em;
+}

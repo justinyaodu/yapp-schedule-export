@@ -248,6 +248,7 @@ function renderEventLocation(schEvent) {
   }
 
   locationText.innerText = schEvent.location;
+  locationText.classList.add("yapp-location");
   
   p = wrap(locationText, "p");
   p.classList.add("card-text");
