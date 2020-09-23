@@ -39,6 +39,10 @@ class ScheduleEvent extends YappObject {
     ];
   }
 
+  static compareByDate(a, b) {
+    return (a.startDateTime || 0) - (b.startDateTime || 0);
+  }
+
   /**
    * Given a date string, set <prefix>Date to the date, <prefix>Time to
    * the time, and <prefix>DateTime to the sum of the date and time.
@@ -56,10 +60,12 @@ class ScheduleEvent extends YappObject {
     this[prefixDate] = new Date(year, month - 1, day);
 
     if (hour !== null && minute !== null) {
-      this[prefixTime] = new Date(1000 * 60 * (minute + 60 * hour));
+      const timeInMillis = 1000 * 60 * (minute + 60 * hour);
+      this[prefixTime] = new Date(timeInMillis);
+      this[prefixDateTime] = new Date(this[prefixDate].getTime() + timeInMillis);
+    } else {
+      this[prefixDateTime] = this[prefixDate];
     }
-
-    this[prefixDateTime] = this[prefixDate] + (this[prefixTime] || 0);
   }
 
   constructor(data) {
@@ -99,6 +105,10 @@ class ScheduleTrack extends YappObject {
   resolveReferences(uuidToObj) {
     this.events = this.data.relationships["schedule-items"].data
       .map(eventData => uuidToObj[eventData.id]);
+    this.events.sort(ScheduleEvent.compareByDate);
+    for (const schEvent of this.events) {
+      console.log(schEvent.startDateTime);
+    }
   }
 }
 
