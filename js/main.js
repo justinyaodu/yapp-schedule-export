@@ -10,10 +10,15 @@ async function main() {
     throw new Error("No Yapp ID or URL entered.");
   }
   
-  const data = await getRawYappData(yappId);
+  const instancesOf = await getYappData(yappId);
 
-
-  document.getElementById("schedule").innerText = JSON.stringify(data);
+  // TODO
+  for (const [className, instanceList] of Object.entries(instancesOf)) {
+    for (const obj of instanceList) {
+      delete obj.data;
+    }
+  }
+  document.getElementById("schedule").innerText = JSON.stringify(instancesOf);
 }
 
 // Run the main function and display any error messages.
