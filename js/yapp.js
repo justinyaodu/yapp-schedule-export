@@ -23,6 +23,45 @@ class YappObject {
  * Represent an event on the schedule.
  */
 class ScheduleEvent extends YappObject {
+  /**
+   * Parse a Yapp date/time string YYYYMMDD(HH)?(MM)?
+   * and return an array [year, month, day, hour, minute],
+   * with missing values set to null.
+   */
+  static parseDate(date) {
+    const results = /(....)(..)(..)(..)?(..)?/.exec(date);
+    return [
+      parseInt(results[1]),
+      parseInt(results[2]),
+      parseInt(results[3]),
+      results[4] ? parseInt(results[4]) : null,
+      results[5] ? parseInt(results[5]) : null,
+    ];
+  }
+
+  /**
+   * Given a date string, set <prefix>Date to the date, <prefix>Time to
+   * the time, and <prefix>DateTime to the sum of the date and time.
+   * If no time is specified, <prefix>Time will not be set.
+   */
+  assignDate(dateString, attributePrefix) {
+    const prefixDate = attributePrefix + "Date";
+    const prefixTime = attributePrefix + "Time";
+    const prefixDateTime = attributePrefix + "DateTime";
+
+    const [year, month, day, hour, minute] =
+      ScheduleEvent.parseDate(dateString);
+
+    // JavaScript months are zero-indexed.
+    this[prefixDate] = new Date(year, month - 1, day);
+
+    if (hour !== null && minute !== null) {
+      this[prefixTime] = new Date(1000 * 60 * (minute + 60 * hour));
+    }
+
+    this[prefixDateTime] = this[prefixDate] + (this[prefixTime] || 0);
+  }
+
   constructor(data) {
     super(data);
 
@@ -34,6 +73,15 @@ class ScheduleEvent extends YappObject {
       this.description = data.attributes.description.sections[0][2][0][3];
     } catch (e) {
       // Do nothing.
+    }
+
+    const datesString = data.attributes["date-and-time"];
+    if (datesString) {
+      const split = datesString.split("-");
+      this.assignDate(split[0], "start");
+      if (split.length > 1) {
+        this.assignDate(split[1], "end");
+      }
     }
   }
 }
