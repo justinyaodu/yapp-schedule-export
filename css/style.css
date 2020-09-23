@@ -133,6 +133,12 @@ label, input, button {
   background-color: #fdd;
 }
 
+/* Details summary. */
+
+summary > * {
+  display: inline;
+}
+
 /* Footer. */
 
 footer {
