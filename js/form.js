@@ -30,7 +30,7 @@ function parseQueryString(queryString) {
 /**
  * Return the requested Yapp ID, or null if it was not specified.
  */
-function getYappID() {
+function getYappId() {
   const urlOrId = getQuery().q;
 
   if (urlOrId === undefined) {

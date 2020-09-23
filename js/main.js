@@ -3,14 +3,14 @@
 async function main() {
   updateFormFromUrl();
 
-  const yappID = getYappID();
-  if (yappID === null) {
+  const yappId = getYappId();
+  if (yappId === null) {
     return;
-  } else if (yappID === "") {
+  } else if (yappId === "") {
     throw new Error("No Yapp ID or URL entered.");
   }
   
-  const data = await getRawYappData(yappID);
+  const data = await getRawYappData(yappId);
 
 
   document.getElementById("schedule").innerText = JSON.stringify(data);
