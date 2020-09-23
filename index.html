@@ -1,41 +1,46 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="en-us" class="h-100">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Yapp Schedule Exporter</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/custom.css">
     <script src="js/form.js" defer></script>
     <script src="js/yapp.js" defer></script>
     <script src="js/render.js" defer></script>
     <script src="js/main.js" defer></script>
   </head>
-  <body>
-    <div id="content">
-      <h1>Yapp Schedule Exporter</h1>
-      <form id="yapp-id-form" class="center-container">
-        <div>
-          <label for="yapp-id-input">Yapp ID or URL:</label>
+  <body class="d-flex flex-column h-100">
+    <div id="content" role="main" class="container flex-shrink-0">
+      <h1 class="mt-3">Yapp Schedule Exporter</h1>
+      <form id="yapp-id-form" class="form-inline mt-3">
+        <div class="form-group mr-sm-2">
+          <label for="yapp-id-input" class="mr-sm-2">
+            Yapp ID or URL:
+          </label>
+          <input id="yapp-id-input" name="q" type="text" class="form-control">
         </div>
-        <div>
-          <input id="yapp-id-input" name="q" type="text">
-        </div>
-        <div>
-          <button id="yapp-id-submit">Go</button>
-        </div>
+        <button id="yapp-id-submit" type="submit" class="btn btn-primary">Go</button>
       </form>
-      <div id="schedule">
+      <div id="schedule" class="mt-3">
       </div>
     </div>
-    <footer>
-      <p>
-        &copy; 2020 Justin Yao Du. View the source code on <a href="https://github.com/justinyaodu/yapp-schedule-exporter">GitHub</a>.
-      </p>
-      <p>
-        You may only use this website if you are a student at the University of California, San Diego. Usage of this website implies agreement with the <a href="https://www.yapp.us/u/terms">Yapp Terms and Conditions</a>.
-      </p>
-      <p>
-        Event information and trademarks are the property of their respective owners.
-      </p>
+    <footer class="footer mt-auto py-3">
+      <div class="container">
+        <p class="text-muted">
+          &copy; 2020 Justin Yao Du. View the source code on <a href="https://github.com/justinyaodu/yapp-schedule-exporter">GitHub</a>.
+        </p>
+        <p class="text-muted">
+          You may only use this website if you are a student at the University of California, San Diego. Usage of this website implies agreement with the <a href="https://www.yapp.us/u/terms">Yapp Terms and Conditions</a>.
+        </p>
+        <p class="text-muted mb-0">
+          Event information and trademarks are the property of their respective owners.
+        </p>
+      </div>
     </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
   </body>
 </html>

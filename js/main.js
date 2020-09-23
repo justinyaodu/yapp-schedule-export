@@ -16,8 +16,9 @@ async function main() {
 
 // Run the main function and display any error messages.
 main().catch((error) => {
-  const p = document.createElement("p");
-  p.classList.add("error");
-  p.innerText = error.toString();
-  document.getElementById("schedule").appendChild(p);
+  const div = document.createElement("div");
+  div.classList.add("alert", "alert-danger");
+  div.role = "alert";
+  div.innerText = error.toString();
+  document.getElementById("schedule").appendChild(div);
 });
