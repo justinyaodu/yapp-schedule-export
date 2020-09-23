@@ -127,6 +127,12 @@ label, input, button {
   border-top: 1px solid;
 }
 
+/* Error messages. */
+
+.error {
+  background-color: #fdd;
+}
+
 /* Footer. */
 
 footer {
