@@ -26,7 +26,7 @@ class ScheduleEvent extends YappObject {
   constructor(data) {
     super(data);
 
-    this.title = data.attributes.title;
+    this.name = data.attributes.title;
     this.location = data.attributes.location;
 
     // TODO Figure out the structure of the description attribute.
