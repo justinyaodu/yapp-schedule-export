@@ -251,6 +251,10 @@ function renderEventLocation(schEvent) {
   return p;
 }
 
+/**
+ * Return an element representing an event description, or null if no
+ * description is specified.
+ */
 function renderEventDescription(schEvent) {
   if (schEvent.description === undefined) {
     return null;
