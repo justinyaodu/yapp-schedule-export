@@ -211,10 +211,6 @@ function renderEvent(schEvent) {
   }
 
   return cardBody;
-
-//  const card = wrap(cardBody, "div");
-//  card.classList.add("card");
-//  return card;
 }
 
 /**
