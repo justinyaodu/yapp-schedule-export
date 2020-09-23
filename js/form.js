@@ -36,7 +36,7 @@ function getYappID() {
   if (urlOrId === undefined) {
     return null;
   } else {
-    // This works for both URLs and IDs.
+    // This returns IDs unchanged and extracts IDs from URLs.
     const split = urlOrId.split("/");
     return split[split.length - 1];
   }
