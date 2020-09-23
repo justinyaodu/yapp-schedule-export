@@ -30,11 +30,15 @@ function renderTrackHeading(track) {
   const div = document.createElement("div");
   div.classList.add("d-flex", "flex-row", "flex-nowrap", "mb-3");
 
+  const id = trackId(track);
+
+  const a = makeCollapseAnchor(id, false);
   div.appendChild(makeCollapseButton(trackId(track), false));
 
   const heading = document.createElement("h2");
   heading.innerText = track.name || "Unknown Schedule Track";
-  div.appendChild(heading);
+  a.appendChild(heading);
+  div.appendChild(a);
 
   return div;
 }
@@ -104,7 +108,10 @@ function renderEventGroupHeading(schEvents) {
   const div = document.createElement("div");
   div.classList.add("card-header", "d-flex", "flex-row", "flex-nowrap");
 
-  div.appendChild(makeCollapseButton(eventGroupId(schEvents), true));
+  const id = eventGroupId(schEvents);
+
+  div.appendChild(makeCollapseButton(id, true));
+  const a = makeCollapseAnchor(id, true);
 
   const heading = document.createElement("h3");
   if (schEvents[0].startDate !== undefined) {
@@ -113,7 +120,8 @@ function renderEventGroupHeading(schEvents) {
   } else {
     heading.innerText = "No Date Specified";
   }
-  div.appendChild(heading);
+  a.appendChild(heading);
+  div.appendChild(a);
 
   return div;
 }
@@ -134,12 +142,33 @@ function makeCollapseButton(id, initialExpanded) {
     button.classList.add("collapsed");
   }
 
-  button.setAttribute("data-toggle", "collapse");
+  setCollapseControlAttributes(button);
   button.setAttribute("data-target", "#" + id);
-  button.setAttribute("aria-expanded", initialExpanded);
-  button.setAttribute("aria-controls", id);
 
   return button;
+}
+
+/**
+ * Make an anchor which controls a Bootstrap collapse element.
+ */
+function makeCollapseAnchor(id, initialExpanded) {
+  const a = document.createElement("a");
+
+  a.classList.add("collapse-toggle-anchor");
+
+  setCollapseControlAttributes(a, id, initialExpanded);
+  a.href = "#" + id;
+
+  return a;
+}
+
+/**
+ * Set attributes used by collapse-controlling anchors and buttons.
+ */
+function setCollapseControlAttributes(element, id, initialExpanded) {
+  element.setAttribute("data-toggle", "collapse");
+  element.setAttribute("aria-expanded", initialExpanded);
+  element.setAttribute("aria-controls", id);
 }
 
 /**

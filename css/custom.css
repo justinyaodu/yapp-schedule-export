@@ -19,3 +19,7 @@
   font-weight: 900;
   content: '\f067';
 }
+
+.collapse-toggle-anchor, .collapse-toggle-anchor:hover {
+  color: inherit;
+}
