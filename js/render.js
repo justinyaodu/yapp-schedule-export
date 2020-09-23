@@ -10,24 +10,41 @@ function render(instancesOf) {
  * Return an element representing a schedule track.
  */
 function renderTrack(track) {
-  const details = document.createElement("details");
+  const trackContainer = document.createElement("div");
 
-  details.appendChild(renderTrackSummary(track));
+  trackContainer.appendChild(renderTrackHeading(track));
 
-  renderEventGroups(track).forEach((e) => details.appendChild(e));
+  const trackContents = document.createElement("div");
+  trackContents.id = trackId(track);
+  trackContents.classList.add("collapse");
+  renderEventGroups(track).forEach((e) => trackContents.appendChild(e));
+  trackContainer.appendChild(trackContents);
 
-  return details;
+  return trackContainer;
 }
 
 /**
  * Return a summary element containing the heading for a track.
  */
-function renderTrackSummary(track) {
+function renderTrackHeading(track) {
+  const div = document.createElement("div");
+  div.classList.add("d-flex", "flex-row", "flex-nowrap", "mb-3");
+
+  div.appendChild(makeCollapseButton(trackId(track), false));
+
   const heading = document.createElement("h2");
   heading.innerText = track.name || "Unknown Schedule Track";
-  return wrap(heading, "summary");
+  div.appendChild(heading);
+
+  return div;
 }
 
+/**
+ * Return an ID unique to a track.
+ */
+function trackId(track) {
+  return "track-" + track.id;
+}
 /**
  * Return an array of elements representing groups of events by date.
  */
@@ -60,13 +77,6 @@ function renderEventGroups(track) {
   return groupElements;
 }
 
-const eventGroupDateOptions = {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-};
-
 /**
  * Return an element representing a group of events on the same date.
  */
@@ -80,10 +90,22 @@ function renderEventGroup(schEvents) {
   return card;
 }
 
+const eventGroupDateOptions = {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+};
+
 /**
  * Return a heading for a group of events.
  */
 function renderEventGroupHeading(schEvents) {
+  const div = document.createElement("div");
+  div.classList.add("card-header", "d-flex", "flex-row", "flex-nowrap");
+
+  div.appendChild(makeCollapseButton(eventGroupId(schEvents), true));
+
   const heading = document.createElement("h3");
   if (schEvents[0].startDate !== undefined) {
     heading.innerText = schEvents[0].startDate
@@ -91,23 +113,33 @@ function renderEventGroupHeading(schEvents) {
   } else {
     heading.innerText = "No Date Specified";
   }
-
-  const div = wrap(heading, "div");
-  div.classList.add("card-header", "d-flex", "flex-row", "flex-nowrap",
-    "justify-content-between");
-
-  // Enclose an empty span to allow CSS styling of button content.
-  const button = wrap(document.createElement("span"), "button");
-  button.classList.add("collapse-toggle-button",
-    "btn", "btn-outline-secondary");
-  button.setAttribute("data-toggle", "collapse");
-  button.setAttribute("data-target", "#" + eventGroupId(schEvents));
-  button.setAttribute("aria-expanded", "false");
-  button.setAttribute("aria-controls", eventGroupId(schEvents));
-  button.type = "button";
-  div.appendChild(button);
+  div.appendChild(heading);
 
   return div;
+}
+
+/**
+ * Make a button which controls a Bootstrap collapse element.
+ */
+function makeCollapseButton(id, initialExpanded) {
+  // Enclose an empty span to allow CSS styling of button content.
+  const button = wrap(document.createElement("span"), "button");
+
+  button.type = "button";
+
+  button.classList.add("collapse-toggle-button",
+    "btn", "btn-outline-secondary", "mr-3");
+
+  if (!initialExpanded) {
+    button.classList.add("collapsed");
+  }
+
+  button.setAttribute("data-toggle", "collapse");
+  button.setAttribute("data-target", "#" + id);
+  button.setAttribute("aria-expanded", initialExpanded);
+  button.setAttribute("aria-controls", id);
+
+  return button;
 }
 
 /**
