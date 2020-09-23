@@ -9,6 +9,7 @@ class YappObject {
    */
   constructor(data) {
     this.data = data;
+    this.id = data.id;
   }
 
   /**
@@ -106,9 +107,6 @@ class ScheduleTrack extends YappObject {
     this.events = this.data.relationships["schedule-items"].data
       .map(eventData => uuidToObj[eventData.id]);
     this.events.sort(ScheduleEvent.compareByDate);
-    for (const schEvent of this.events) {
-      console.log(schEvent.startDateTime);
-    }
   }
 }
 

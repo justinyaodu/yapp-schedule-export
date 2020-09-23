@@ -71,38 +71,89 @@ const eventGroupDateOptions = {
  * Return an element representing a group of events on the same date.
  */
 function renderEventGroup(schEvents) {
-  const div = document.createElement("div");
-  div.classList.add("group");
+  const card = document.createElement("div");
+  card.classList.add("card", "mb-3");
 
+  card.appendChild(renderEventGroupHeading(schEvents));
+  card.appendChild(renderEventGroupList(schEvents));
+
+  return card;
+}
+
+/**
+ * Return a heading for a group of events.
+ */
+function renderEventGroupHeading(schEvents) {
+  const heading = document.createElement("h3");
   if (schEvents[0].startDate !== undefined) {
-    const heading = document.createElement("h3");
     heading.innerText = schEvents[0].startDate
       .toLocaleDateString(undefined, eventGroupDateOptions);
-    div.appendChild(heading);
+  } else {
+    heading.innerText = "No Date Specified";
   }
 
-  for (const schEvent of schEvents) {
-    div.appendChild(renderEvent(schEvent));
-  }
+  const div = wrap(heading, "div");
+  div.classList.add("card-header", "d-flex", "flex-row", "flex-nowrap",
+    "justify-content-between");
+
+  // Enclose an empty span to allow CSS styling of button content.
+  const button = wrap(document.createElement("span"), "button");
+  button.classList.add("collapse-toggle-button",
+    "btn", "btn-outline-secondary");
+  button.setAttribute("data-toggle", "collapse");
+  button.setAttribute("data-target", "#" + eventGroupId(schEvents));
+  button.setAttribute("aria-expanded", "false");
+  button.setAttribute("aria-controls", eventGroupId(schEvents));
+  button.type = "button";
+  div.appendChild(button);
 
   return div;
+}
+
+/**
+ * Return an element containing a list of events.
+ */
+function renderEventGroupList(schEvents) {
+  const eventList = document.createElement("ul");
+  eventList.classList.add("list-group", "list-group-flush", "collapse", "show");
+  eventList.id = eventGroupId(schEvents);
+  for (const schEvent of schEvents) {
+    eventList.appendChild(renderEvent(schEvent));
+  }
+  return eventList;
+}
+
+/**
+ * Return an ID unique to a group of events.
+ */
+function eventGroupId(schEvents) {
+  return "group-of-" + schEvents[0].id;
 }
 
 /**
  * Return an element representing a schedule event.
  */
 function renderEvent(schEvent) {
-  const div = document.createElement("div");
-  div.classList.add("event");
+  const cardBody = document.createElement("li");
+  cardBody.classList.add("list-group-item");
 
-  div.appendChild(renderEventHeading(schEvent));
+  cardBody.appendChild(renderEventHeading(schEvent));
 
   const locationElement = renderEventLocation(schEvent);
   if (locationElement !== null) {
-    div.appendChild(locationElement);
+    cardBody.appendChild(locationElement);
   }
 
-  return div;
+  const descriptionElement = renderEventDescription(schEvent);
+  if (descriptionElement !== null) {
+    cardBody.appendChild(descriptionElement);
+  }
+
+  return cardBody;
+
+//  const card = wrap(cardBody, "div");
+//  card.classList.add("card");
+//  return card;
 }
 
 /**
@@ -110,6 +161,7 @@ function renderEvent(schEvent) {
  */
 function renderEventHeading(schEvent) {
   const heading = document.createElement("h4");
+  heading.classList.add("card-title");
   heading.innerText = schEvent.name || "Unknown Event";
   return heading;
 }
@@ -137,7 +189,18 @@ function renderEventLocation(schEvent) {
   locationText.innerText = schEvent.location;
   
   p = wrap(locationText, "p");
-  p.classList.add("location");
+  p.classList.add("card-text");
+  return p;
+}
+
+function renderEventDescription(schEvent) {
+  if (schEvent.description === undefined) {
+    return null;
+  }
+
+  const p = document.createElement("p");
+  p.innerText = schEvent.description;
+  p.classList.add("card-text");
   return p;
 }
 
