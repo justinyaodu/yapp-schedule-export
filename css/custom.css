@@ -24,10 +24,23 @@
   color: inherit;
 }
 
-.yapp-location::before {
+.yapp-location::before, .yapp-time::before {
   font-family: 'Font Awesome 5 Free';
+  font-weight: 400;
+  display: inline-block;
+  width: 1.5em;
+  text-align: center;
+}
+
+.yapp-location::before {
   font-weight: 900;
   content: '\f3c5';
-  display: inline-block;
-  margin-right: 0.5em;
+}
+
+.yapp-time::before {
+  content: '\f017';
+}
+
+.yapp-event-about > * {
+  margin-bottom: 0;
 }

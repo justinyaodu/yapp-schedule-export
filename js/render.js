@@ -202,17 +202,43 @@ function renderEvent(schEvent) {
 
   cardBody.appendChild(renderEventHeading(schEvent));
 
-  const locationElement = renderEventLocation(schEvent);
-  if (locationElement !== null) {
-    cardBody.appendChild(locationElement);
-  }
-
-  const descriptionElement = renderEventDescription(schEvent);
-  if (descriptionElement !== null) {
-    cardBody.appendChild(descriptionElement);
+  const children = [
+    renderEventAbout(schEvent),
+    renderEventDescription(schEvent),
+  ];
+  
+  for (const child of children) {
+    if (child !== null) {
+      cardBody.appendChild(child);
+    }
   }
 
   return cardBody;
+}
+
+/**
+ * Return an element containing information about this event (time, location,
+ * etc.).
+ */
+function renderEventAbout(schEvent) {
+  const eventAbout = document.createElement("div");
+  eventAbout.classList.add("yapp-event-about",
+    "d-flex", "flex-column", "flex-nowrap", "mb-2");
+
+  const aboutElements = [
+    renderEventTime(schEvent),
+    renderEventLocation(schEvent),
+  ];
+
+  let showAbout = false;
+  for (const aboutElement of aboutElements) {
+    if (aboutElement !== null) {
+      eventAbout.appendChild(aboutElement);
+      showAbout = true;
+    }
+  }
+
+  return showAbout ? eventAbout : nul;
 }
 
 /**
@@ -223,6 +249,62 @@ function renderEventHeading(schEvent) {
   heading.classList.add("card-title");
   heading.innerText = schEvent.name || "Unknown Event";
   return heading;
+}
+
+/**
+ * Return an element representing the time and duration of an event, or null
+ * if this information is not available.
+ */
+function renderEventTime(schEvent) {
+  if (schEvent.startTime === undefined) {
+    return null;
+  }
+
+  const p = document.createElement("p");
+  p.classList.add("yapp-time");
+
+  if (schEvent.endTime === undefined) {
+    p.innerText = getTimeString(schEvent.startDateTime);
+    return p;
+  }
+
+  const fromTo = getTimeString(schEvent.startDateTime)
+    + " – " + getTimeString(schEvent.endDateTime);
+
+  const duration = getDurationString(
+    schEvent.startDateTime, schEvent.endDateTime);
+
+  p.innerText = `${fromTo} (${duration})`;
+
+  return p;
+}
+
+/**
+ * Format a Date as a time without seconds.
+ */
+function getTimeString(date) {
+  return date.toLocaleTimeString(undefined)
+    .replace(/(?=:\d\d):\d\d/, "").toLowerCase();
+}
+
+/**
+ * Format the duration between two Dates in hours and minutes.
+ */
+function getDurationString(fromDate, toDate) {
+  let minutes = (toDate.getTime() - fromDate.getTime()) / 1000 / 60;
+
+  if (minutes <= 60) {
+    return `${minutes} min`;
+  } else {
+    let str = `${minutes / 60} hr`;
+
+    minutes %= 60;
+    if (minutes > 0) {
+      str += `${minutes} min`;
+    }
+
+    return str;
+  }
 }
 
 /**
@@ -246,10 +328,9 @@ function renderEventLocation(schEvent) {
   }
 
   locationText.innerText = schEvent.location;
-  locationText.classList.add("yapp-location");
   
   const p = wrap(locationText, "p");
-  p.classList.add("card-text");
+  p.classList.add("yapp-location");
   return p;
 }
 
