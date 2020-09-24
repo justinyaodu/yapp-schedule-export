@@ -1,11 +1,15 @@
 "use strict";
 
 /**
- * Display the schedule data.
+ * Display the schedule data and return whether anything was rendered.
  */
 function render(instancesOf) {
-  instancesOf.ScheduleTrack.forEach((track) => 
-    document.getElementById("schedule").appendChild(renderTrack(track)));
+  let contentsRendered = false;
+  for (const track of instancesOf.ScheduleTrack) {
+    document.getElementById("schedule").appendChild(renderTrack(track));
+    contentsRendered = true;
+  }
+  return contentsRendered;
 }
 
 /**

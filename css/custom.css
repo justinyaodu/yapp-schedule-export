@@ -1,13 +1,5 @@
 @import('https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 
-#hint {
-  display: none;
-}
-
-#hint:only-child {
-  display: unset;
-}
-
 .collapse-toggle-button > :first-child::after {
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
