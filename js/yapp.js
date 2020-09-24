@@ -155,7 +155,8 @@ const typeToClass = {
  * Return a Promise which resolves to the data for a Yapp app.
  */
 async function getRawYappData(yappId) {
-  const url = "https://www.yapp.us/api/preview/v2/yapps/" + yappId;
+  const url = "https://www.yapp.us/api/preview/v2/yapps/"
+    + encodeURIComponent(yappId);
 
   const response = await fetch(url);
   if (!response.ok) {
