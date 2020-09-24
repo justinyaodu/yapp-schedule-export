@@ -155,6 +155,7 @@ function makeCollapseButton(id, initialExpanded) {
  */
 function makeCollapseAnchor(id, initialExpanded) {
   const a = document.createElement("a");
+  a.role = "button";
 
   a.classList.add("collapse-toggle-anchor");
 
@@ -205,6 +206,7 @@ function renderEvent(schEvent) {
   const children = [
     renderEventAbout(schEvent),
     renderEventDescription(schEvent),
+    renderEventCalendarButtons(schEvent),
   ];
   
   for (const child of children) {
@@ -238,7 +240,7 @@ function renderEventAbout(schEvent) {
     }
   }
 
-  return showAbout ? eventAbout : nul;
+  return showAbout ? eventAbout : null;
 }
 
 /**
@@ -312,7 +314,7 @@ function getDurationString(fromDate, toDate) {
  * specified.
  */
 function renderEventLocation(schEvent) {
-  if (schEvent.location === undefined) {
+  if (!schEvent.location) {
     return null;
   }
 
@@ -347,6 +349,81 @@ function renderEventDescription(schEvent) {
   p.innerText = schEvent.description;
   p.classList.add("card-text");
   return p;
+}
+
+/**
+ * Return an element containing buttons to add an event to an external calendar.
+ */
+function renderEventCalendarButtons(schEvent) {
+  const div = document.createElement("div");
+  div.classList.add("yapp-calendar-buttons", "d-flex", "flex-row", "flex-wrap");
+
+  const label = document.createElement("p");
+  label.classList.add("mb-0");
+  label.innerText = "Add to:"
+  const labelContainer = wrap(label, "div");
+  labelContainer.classList.add("d-flex", "flex-column",
+    "justify-content-center");
+  div.appendChild(labelContainer);
+
+  div.appendChild(makeCalendarButton(schEvent, googleCalendarUrl,
+    "Google Calendar", ["btn-outline-danger"]));
+
+  return div;
+}
+
+/**
+ * Create a button to add an event to an external calendar.
+ */
+function makeCalendarButton(schEvent, urlFunc, name, classes) {
+  const a = document.createElement("a");
+
+  a.href = urlFunc(schEvent);
+  a.target = "_blank";
+  a.innerText = name;
+
+  a.role = "button";
+  a.classList.add("btn", "ml-2");
+  for (const elementClass of classes) {
+    a.classList.add(elementClass);
+  }
+
+  return a;
+}
+
+/**
+ * Return a URL to add this event to Google Calendar.
+ */
+function googleCalendarUrl(schEvent) {
+  let url = "https://www.google.com/calendar/render?action=TEMPLATE";
+
+  if (schEvent.name) {
+    url += `&text=${encodeURIComponent(schEvent.name)}`;
+  }
+
+  if (schEvent.startDateTime) {
+    url += `&dates=${googleCalendarDateString(schEvent.startDateTime)}`;
+
+    const endDateTime = schEvent.endDateTime || schEvent.startDateTime;
+    url += `/${googleCalendarDateString(endDateTime)}`;
+  }
+
+  if (schEvent.location) {
+    url += `&location=${encodeURIComponent(schEvent.location)}`;
+  }
+
+  if (schEvent.description) {
+    url += `&details=${encodeURIComponent(schEvent.description)}`;
+  }
+
+  return url;
+}
+
+/**
+ * Format a date for a Google Calendar URL.
+ */
+function googleCalendarDateString(date) {
+  return date.toISOString().replace(/[-:]/g, "").replace(/\.[0-9]+/, "");
 }
 
 /**
