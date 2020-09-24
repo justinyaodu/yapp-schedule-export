@@ -1,4 +1,4 @@
-@import('https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+@import url('https://use.fontawesome.com/releases/v5.14.0/css/all.css');
 
 .collapse-toggle-button > :first-child::after {
   font-family: 'Font Awesome 5 Free';
