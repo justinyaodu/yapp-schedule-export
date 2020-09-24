@@ -302,11 +302,11 @@ function getDurationString(fromDate, toDate) {
   if (minutes <= 60) {
     return `${minutes} min`;
   } else {
-    let str = `${minutes / 60} hr`;
+    let str = `${Math.floor(minutes / 60)} hr`;
 
     minutes %= 60;
     if (minutes > 0) {
-      str += `${minutes} min`;
+      str += ` ${minutes} min`;
     }
 
     return str;
