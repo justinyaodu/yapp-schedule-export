@@ -42,8 +42,9 @@ function renderTrackHeading(track) {
 
   const id = trackId(track);
 
-  const collapseButton = makeCollapseButton(trackId(track), false);
-  collapseButton.classList.add("ml-3");
+  const collapseButton = makeCollapseButton(id, false);
+  // Align with collapse buttons on event groups.
+  collapseButton.style = "margin-left: calc(0.75rem + 1px);";
   div.appendChild(collapseButton);
 
   const heading = document.createElement("h2");
