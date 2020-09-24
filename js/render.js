@@ -322,7 +322,7 @@ function renderEventTime(schEvent) {
  */
 function getTimeString(date) {
   return date.toLocaleTimeString(undefined)
-    .replace(/(?<=:\d\d):\d\d/, "").toLowerCase();
+    .replace(/(:\d\d)(:\d\d)/, "$1").toLowerCase();
 }
 
 /**
