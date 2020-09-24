@@ -119,6 +119,7 @@ class ScheduleTrack extends YappObject {
 
     this.name = data.attributes.name;
     this.sortOrder = data.attributes["sort-order"];
+    this.color = data.attributes.color;
   }
 
   static compareBySortOrder(a, b) {

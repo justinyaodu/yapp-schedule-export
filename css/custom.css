@@ -36,3 +36,9 @@
 .yapp-event-about > * {
   margin-bottom: 0;
 }
+
+.yapp-track-color-bar {
+  background-color: var(--yapp-track-color);
+  width: 0.5rem;
+  border-radius: 0.25rem;
+}

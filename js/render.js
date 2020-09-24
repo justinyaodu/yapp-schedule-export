@@ -18,6 +18,7 @@ function render(instancesOf) {
  */
 function renderTrack(track) {
   const trackContainer = document.createElement("div");
+  trackContainer.style = `--yapp-track-color: ${track.color};`;
 
   trackContainer.appendChild(renderTrackHeading(track));
 
@@ -37,17 +38,46 @@ function renderTrackHeading(track) {
   const div = document.createElement("div");
   div.classList.add("d-flex", "flex-row", "flex-nowrap", "mb-3");
 
+  div.appendChild(makeTrackColorBar());
+
   const id = trackId(track);
 
-  const a = makeCollapseAnchor(id, false);
-  div.appendChild(makeCollapseButton(trackId(track), false));
+  const collapseButton = makeCollapseButton(trackId(track), false);
+  collapseButton.classList.add("ml-3");
+  div.appendChild(collapseButton);
 
   const heading = document.createElement("h2");
   heading.innerText = track.name || "Unknown Schedule Track";
+
+  const a = makeCollapseAnchor(id, false);
   a.appendChild(heading);
   div.appendChild(a);
 
   return div;
+}
+
+/**
+ * Place a track color bar next to this element.
+ */
+function wrapWithTrackColor(element) {
+  const div = document.createElement("div");
+  div.classList.add("yapp-track-color-bar-wrapper",
+    "d-flex", "flex-row", "flex-nowrap", "mb-2");
+
+  div.appendChild(makeTrackColorBar());
+
+  div.appendChild(element);
+
+  return div;
+}
+
+/**
+ * Make a small vertical bar, colored with the track color.
+ */
+function makeTrackColorBar() {
+  const bar = document.createElement("div");
+  bar.classList.add("yapp-track-color-bar");
+  return bar;
 }
 
 /**
@@ -253,9 +283,9 @@ function renderEventAbout(schEvent) {
  */
 function renderEventHeading(schEvent) {
   const heading = document.createElement("h4");
-  heading.classList.add("card-title");
+  heading.classList.add("card-title", "mb-0", "ml-2");
   heading.innerText = schEvent.name || "Unknown Event";
-  return heading;
+  return wrapWithTrackColor(heading);
 }
 
 /**
