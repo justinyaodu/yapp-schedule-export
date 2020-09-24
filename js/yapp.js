@@ -45,6 +45,25 @@ class ScheduleEvent extends YappObject {
   }
 
   /**
+   * Return the text of an event description, by recursively finding strings
+   * in this object and concatenating them.
+   */
+  static parseDescription(desc) {
+    if (typeof desc === "string") {
+      // Filter out what I assume are HTML p tags.
+      return desc === "p" ? "" : desc;
+    } else if (Array.isArray(desc)) {
+      // Recurse on array elements.
+      return desc.reduce((a, b) => a + ScheduleEvent.parseDescription(b), "");
+    } else if (desc.sections !== undefined) {
+      // Top-level description object.
+      return ScheduleEvent.parseDescription(desc.sections);
+    } else {
+      return "";
+    }
+  }
+
+  /**
    * Given a date string, set <prefix>Date to the date, <prefix>Time to
    * the time, and <prefix>DateTime to the sum of the date and time.
    * If no time is specified, <prefix>Time will not be set.
@@ -75,12 +94,8 @@ class ScheduleEvent extends YappObject {
     this.name = data.attributes.title;
     this.location = data.attributes.location;
 
-    // TODO Figure out the structure of the description attribute.
-    try {
-      this.description = data.attributes.description.sections[0][2][0][3];
-    } catch (e) {
-      // Do nothing.
-    }
+    this.description = ScheduleEvent.parseDescription(
+      data.attributes.description);
 
     const datesString = data.attributes["date-and-time"];
     if (datesString) {
