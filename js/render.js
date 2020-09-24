@@ -5,6 +5,7 @@
  */
 function render(instancesOf) {
   let contentsRendered = false;
+  instancesOf.ScheduleTrack.sort(ScheduleTrack.compareBySortOrder);
   for (const track of instancesOf.ScheduleTrack) {
     document.getElementById("schedule").appendChild(renderTrack(track));
     contentsRendered = true;

@@ -118,6 +118,11 @@ class ScheduleTrack extends YappObject {
     super(data);
 
     this.name = data.attributes.name;
+    this.sortOrder = data.attributes["sort-order"];
+  }
+
+  static compareBySortOrder(a, b) {
+    return (a.sortOrder || -1) - (b.sortOrder || -1);
   }
 
   resolveReferences(uuidToObj) {
