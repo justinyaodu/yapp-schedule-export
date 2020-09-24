@@ -321,9 +321,21 @@ function renderEventTime(schEvent) {
   const duration = getDurationString(
     schEvent.startDateTime, schEvent.endDateTime);
 
-  p.innerText = `${fromTo} (${duration})`;
+  p.appendChild(makeInlineBlockSpan(fromTo));
+  p.appendChild(document.createTextNode(" "));
+  p.appendChild(makeInlineBlockSpan(`(${duration})`));
 
   return p;
+}
+
+/**
+ * Create an inline block span which contains the given text.
+ */
+function makeInlineBlockSpan(text) {
+  const span = document.createElement("span");
+  span.classList.add("d-inline-block");
+  span.innerText = text;
+  return span;
 }
 
 /**
