@@ -49,7 +49,9 @@ class ScheduleEvent extends YappObject {
    * in this object and concatenating them.
    */
   static parseDescription(desc) {
-    if (typeof desc === "string") {
+    if (desc === undefined || desc === null) {
+      return "";
+    } else if (typeof desc === "string") {
       // Filter out what I assume are HTML p tags.
       return desc === "p" ? "" : desc;
     } else if (Array.isArray(desc)) {
