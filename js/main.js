@@ -14,7 +14,7 @@ async function main() {
   }
   
   const instancesOf = await getYappData(yappId);
-  if (render(instancesOf)) {
+  if (renderSchedule(instancesOf)) {
     clearAlerts();
   } else {
     clearAlerts();

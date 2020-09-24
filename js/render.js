@@ -3,7 +3,7 @@
 /**
  * Display the schedule data and return whether anything was rendered.
  */
-function render(instancesOf) {
+function renderSchedule(instancesOf) {
   let contentsRendered = false;
   instancesOf.ScheduleTrack.sort(ScheduleTrack.compareBySortOrder);
   for (const track of instancesOf.ScheduleTrack) {
