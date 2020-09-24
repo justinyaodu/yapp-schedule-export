@@ -1,6 +1,24 @@
-# Yapp Schedule Exporter
+# [Yapp Schedule Exporter](https://justinyaodu.com/tools/yapp-schedule-exporter)
 
-_View [Yapp](https://www.yapp.us/) event schedules, and export events to your personal calendar._
+View [Yapp](https://www.yapp.us/) schedules in a web browser and export events to your personal calendar. Computers and mobile devices are supported. Click [here](https://justinyaodu.com/tools/yapp-schedule-exporter/?q=DEMO) for a demo.
+
+## Features
+
+* Open a Yapp app by its ID or URL
+* View events grouped by schedule track, then ordered by date
+* Export events to your Google Calendar
+* Create a schedule export link for a specific app: add `?q=` and your Yapp ID to the end of the URL
+
+## Under the Hood
+
+This project uses [Bootstrap](https://getbootstrap.com) for its responsive UI, and [Font Awesome](https://fontawesome.com/) for icons.
+
+This site can be hosted statically, since everything is implemented in client-side JavaScript.
+
+## Possible Improvements
+
+* Support more calendar formats
+* Support formatting inside event descriptions
 
 ## Yapp API and Terms of Service
 
