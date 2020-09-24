@@ -5,13 +5,14 @@
  */
 function renderSchedule(instancesOf) {
   const appName = instancesOf.AppInfo[0].name;
+  if (appName) {
+    const title = document.createElement("h1");
+    title.innerText = appName;
+    title.classList.add("mb-4");
+    document.getElementById("schedule").appendChild(title);
 
-  const title = document.createElement("h1");
-  title.innerText = appName;
-  title.classList.add("mb-4");
-  document.getElementById("schedule").appendChild(title);
-
-  document.title = `${appName} - ${document.title}`;
+    document.title = `${appName} - ${document.title}`;
+  }
 
   let contentsRendered = false;
   instancesOf.ScheduleTrack.sort(ScheduleTrack.compareBySortOrder);
