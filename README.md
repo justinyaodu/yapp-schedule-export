@@ -1,6 +1,6 @@
 # [Yapp Schedule Exporter](https://justinyaodu.com/tools/yapp-schedule-exporter)
 
-View [Yapp](https://www.yapp.us/) schedules in a web browser and export events to your personal calendar. Computers and mobile devices are supported. Click [here](https://justinyaodu.com/tools/yapp-schedule-exporter/?q=DEMO) for a demo.
+View [Yapp](https://www.yapp.us/) schedules in a web browser and export events to your personal calendar. Click [here](https://justinyaodu.com/tools/yapp-schedule-exporter/?q=DEMO) for a demo.
 
 ## Features
 
@@ -11,9 +11,7 @@ View [Yapp](https://www.yapp.us/) schedules in a web browser and export events t
 
 ## Under the Hood
 
-This project uses [Bootstrap](https://getbootstrap.com) for its responsive UI, and [Font Awesome](https://fontawesome.com/) for icons.
-
-This site can be hosted statically, since everything is implemented in client-side JavaScript.
+This project uses [Bootstrap](https://getbootstrap.com) for its responsive UI, and [Font Awesome](https://fontawesome.com/) for icons. It can be hosted statically, since everything is implemented in client-side JavaScript.
 
 ## Possible Improvements
 
