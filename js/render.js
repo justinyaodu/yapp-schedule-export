@@ -4,6 +4,15 @@
  * Display the schedule data and return whether anything was rendered.
  */
 function renderSchedule(instancesOf) {
+  const appName = instancesOf.AppInfo[0].name;
+
+  const title = document.createElement("h1");
+  title.innerText = appName;
+  title.classList.add("mb-4");
+  document.getElementById("schedule").appendChild(title);
+
+  document.title = `${appName} - ${document.title}`;
+
   let contentsRendered = false;
   instancesOf.ScheduleTrack.sort(ScheduleTrack.compareBySortOrder);
   for (const track of instancesOf.ScheduleTrack) {
