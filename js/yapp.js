@@ -174,5 +174,15 @@ async function getYappData(yappId) {
     obj.resolveReferences(uuidToObj);
   }
 
-  return classToInstances;
+  // If no instances of a class exist, return an empty list instead of
+  // undefined.
+  return new Proxy(classToInstances, {
+    get: function(target, property, receiver) {
+      if (target[property] === undefined) {
+        return [];
+      } else {
+        return target[property];
+      }
+    }
+  });
 }
