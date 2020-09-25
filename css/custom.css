@@ -41,4 +41,5 @@
   background-color: var(--yapp-track-color);
   width: 0.5rem;
   border-radius: 0.25rem;
+  flex-shrink: 0;
 }
