@@ -208,7 +208,7 @@ function makeCollapseButton(id, initialExpanded) {
     button.classList.add("collapsed");
   }
 
-  setCollapseControlAttributes(button);
+  setCollapseControlAttributes(button, id, initialExpanded);
   button.setAttribute("data-target", "#" + id);
 
   return button;
