@@ -1,261 +1,265 @@
-"use strict";
+define(["mobiledoc-dom-renderer"], function(mdr) {
+  // Define MobiledocDOMRenderer globally.
+  mdr.registerGlobal(window);
 
-/**
- * Represent a generic object deserialized from Yapp data.
- */
-class YappObject {
-  /**
-   * Initialize attributes from the object data.
-   */
-  constructor(data) {
-    this.data = data;
-    this.id = data.id;
-  }
-
-  /**
-   * Convert UUIDs to object references.
-   */
-  resolveReferences(uuidToObj) {
-    // Overridden by subclasses.
-  }
-}
-
-/**
- * Represent an event on the schedule.
- */
-class ScheduleEvent extends YappObject {
-  /**
-   * Parse a Yapp date/time string YYYYMMDD(HH)?(MM)?
-   * and return an array [year, month, day, hour, minute],
-   * with missing values set to null.
-   */
-  static parseDate(date) {
-    const results = /(....)(..)(..)(..)?(..)?/.exec(date);
-    return [
-      parseInt(results[1]),
-      parseInt(results[2]),
-      parseInt(results[3]),
-      results[4] ? parseInt(results[4]) : null,
-      results[5] ? parseInt(results[5]) : null,
-    ];
-  }
-
-  static compareByDate(a, b) {
-    return (a.startDateTime || 0) - (b.startDateTime || 0);
-  }
-
-  /**
-   * Return the text of an event description, by recursively finding strings
-   * in this object and concatenating them.
-   */
-  static parseDescription(desc) {
-    if (desc === undefined || desc === null) {
-      return "";
-    } else if (typeof desc === "string") {
-      // Filter out what I assume are HTML p tags.
-      return desc === "p" ? "" : desc;
-    } else if (Array.isArray(desc)) {
-      // Recurse on array elements.
-      return desc.reduce((a, b) => a + ScheduleEvent.parseDescription(b), "");
-    } else if (desc.sections !== undefined) {
-      // Top-level description object.
-      return ScheduleEvent.parseDescription(desc.sections);
-    } else {
-      return "";
-    }
-  }
-
-  /**
-   * Given a date string, set <prefix>Date to the date, <prefix>Time to
-   * the time, and <prefix>DateTime to the sum of the date and time.
-   * If no time is specified, <prefix>Time will not be set.
-   */
-  assignDate(dateString, attributePrefix) {
-    const prefixDate = attributePrefix + "Date";
-    const prefixTime = attributePrefix + "Time";
-    const prefixDateTime = attributePrefix + "DateTime";
-
-    const [year, month, day, hour, minute] =
-      ScheduleEvent.parseDate(dateString);
-
-    // JavaScript months are zero-indexed.
-    this[prefixDate] = new Date(year, month - 1, day);
-
-    if (hour !== null && minute !== null) {
-      const timeInMillis = 1000 * 60 * (minute + 60 * hour);
-      this[prefixTime] = new Date(timeInMillis);
-      this[prefixDateTime] = new Date(this[prefixDate].getTime() + timeInMillis);
-    } else {
-      this[prefixDateTime] = this[prefixDate];
-    }
-  }
-
-  constructor(data) {
-    super(data);
-
-    this.name = data.attributes.title;
-    this.location = data.attributes.location;
-
-    this.description = ScheduleEvent.parseDescription(
-      data.attributes.description);
-
-    const datesString = data.attributes["date-and-time"];
-    if (datesString) {
-      const split = datesString.split("-");
-      this.assignDate(split[0], "start");
-      if (split.length > 1) {
-        this.assignDate(split[1], "end");
-      }
-    }
-  }
-}
-
-/**
- * Represent a schedule track.
- */
-class ScheduleTrack extends YappObject {
-  constructor(data) {
-    super(data);
-
-    this.name = data.attributes.name;
-    this.sortOrder = data.attributes["sort-order"] || 0;
-    this.color = data.attributes.color;
-  }
-
-  static compareBySortOrder(a, b) {
-    return a.sortOrder - b.sortOrder;
-  }
-
-  resolveReferences(uuidToObj) {
-    this.events = ScheduleTrack.resolveEvents(
-      this.data.relationships["schedule-items"], uuidToObj);
-  }
-
-  /**
-   * Map the serialized schedule items to an array of ScheduleEvent instances.
-   */
-  static resolveEvents(scheduleItems, uuidToObj) {
-    const events = scheduleItems.data.map(eventData => uuidToObj[eventData.id]);
-    events.sort(ScheduleEvent.compareByDate);
-    return events;
-  }
-}
-
-/**
- * Represent a page of the Yapp app.
- */
-class Page extends YappObject {
-  resolveReferences(uuidToObj) {
-    const relationships = this.data.relationships;
-
-    if (relationships.tracks !== undefined) {
-      // Multi-track schedule page.
-      // Resolve the references to existing ScheduleTracks.
-      this.tracks = relationships.tracks.data
-        .map(track => uuidToObj[track.id]);
-      this.tracks.sort(ScheduleTrack.compareBySortOrder);
-    } else if (relationships["schedule-items"] !== undefined) {
-      // Schedule page without tracks.
-      // Create a fake schedule track.
-      this.tracks = [
-        new FakeScheduleTrack(relationships["schedule-items"], uuidToObj)
-      ];
-    } else {
-      // Not a schedule page.
-      this.tracks = null;
-    }
-  }
-}
-
-/**
- * Implement a fake schedule track interface for Yapp apps in the "schedule2"
- * format, which do not organize the events into schedule tracks.
- */
-class FakeScheduleTrack {
-  constructor(scheduleItems, uuidToObj) {
-    this.name = "Schedule";
-    this.sortOrder = -1;
-    this.color = "#808080";
-    this.id = "faketrack";
-    this.events = ScheduleTrack.resolveEvents(scheduleItems, uuidToObj);
-  }
-}
-
-/**
- * Information about this app.
- */
-class AppInfo extends YappObject {
-  constructor(data) {
-    super(data);
-
-    this.name = data.attributes.name;
-  }
-}
-
-// Map a deserialized object's type attribute to the corresponding class.
-const typeToClass = {
-  "schedule-items": ScheduleEvent,
-  "tracks": ScheduleTrack,
-  "yapps": AppInfo,
-  "pages": Page,
-};
-
-/**
- * Return a Promise which resolves to the data for a Yapp app.
- */
-async function getRawYappData(yappId) {
-  const url = "https://www.yapp.us/api/preview/v2/yapps/"
-    + encodeURIComponent(yappId);
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Could not retrieve data for Yapp ID '${yappId}' `
-      + `(${response.status} ${response.statusText}). `
-      + "Please ensure that the Yapp ID or URL is entered correctly.");
-  }
-
-  return await response.json();
-}
-
-/**
- * Return a dictionary which maps YappObject class names to lists of their
- * instances.
- */
-async function getYappData(yappId) {
-  const rawData = await getRawYappData(yappId);
-
-  const uuidToObj = {};
-  const classToInstances = {};
-
-  for (const objData of [rawData.data, ...rawData.included]) {
-    let objClass = typeToClass[objData.type];
-    if (objClass === undefined) {
-      objClass = YappObject;
-    }
-
-    const obj = new objClass(objData);
-    uuidToObj[objData.id] = obj;
-
-    const className = obj.constructor.name;
-    if (classToInstances[className] === undefined) {
-      classToInstances[className] = [];
-    }
-    classToInstances[obj.constructor.name].push(obj);
-  }
-
-  for (const [id, obj] of Object.entries(uuidToObj)) {
-    obj.resolveReferences(uuidToObj);
-  }
-
-  // If no instances of a class exist, return an empty list instead of
-  // undefined.
-  return new Proxy(classToInstances, {
-    get: function(target, property, receiver) {
-      if (target[property] === undefined) {
-        return [];
-      } else {
-        return target[property];
-      }
-    }
+  // Create a new Mobiledoc renderer.
+  mobiledocRenderer = new MobiledocDOMRenderer({
+    unknownCardHandler: card => {},
+    unknownAtomHandler: atom => {},
   });
-}
+
+  /**
+   * Represent a generic object deserialized from Yapp data.
+   */
+  class YappObject {
+    /**
+     * Initialize attributes from the object data.
+     */
+    constructor(data) {
+      this.data = data;
+      this.id = data.id;
+    }
+
+    /**
+     * Convert UUIDs to object references.
+     */
+    resolveReferences(uuidToObj) {
+      // Overridden by subclasses.
+    }
+  }
+
+  /**
+   * Represent an event on the schedule.
+   */
+  class ScheduleEvent extends YappObject {
+    /**
+     * Parse a Yapp date/time string YYYYMMDD(HH)?(MM)?
+     * and return an array [year, month, day, hour, minute],
+     * with missing values set to null.
+     */
+    static parseDate(date) {
+      const results = /(....)(..)(..)(..)?(..)?/.exec(date);
+      return [
+        parseInt(results[1]),
+        parseInt(results[2]),
+        parseInt(results[3]),
+        results[4] ? parseInt(results[4]) : null,
+        results[5] ? parseInt(results[5]) : null,
+      ];
+    }
+
+    static compareByDate(a, b) {
+      return (a.startDateTime || 0) - (b.startDateTime || 0);
+    }
+
+    /**
+     * Given a date string, set <prefix>Date to the date, <prefix>Time to
+     * the time, and <prefix>DateTime to the sum of the date and time.
+     * If no time is specified, <prefix>Time will not be set.
+     */
+    assignDate(dateString, attributePrefix) {
+      const prefixDate = attributePrefix + "Date";
+      const prefixTime = attributePrefix + "Time";
+      const prefixDateTime = attributePrefix + "DateTime";
+
+      const [year, month, day, hour, minute] =
+        ScheduleEvent.parseDate(dateString);
+
+      // JavaScript months are zero-indexed.
+      this[prefixDate] = new Date(year, month - 1, day);
+
+      if (hour !== null && minute !== null) {
+        const timeInMillis = 1000 * 60 * (minute + 60 * hour);
+        this[prefixTime] = new Date(timeInMillis);
+        this[prefixDateTime] = new Date(this[prefixDate].getTime() + timeInMillis);
+      } else {
+        this[prefixDateTime] = this[prefixDate];
+      }
+    }
+
+    constructor(data) {
+      super(data);
+
+      this.name = data.attributes.title;
+      this.location = data.attributes.location;
+
+      const description = data.attributes.description;
+
+      if (description == undefined || description == null) {
+        this.description = null;
+      } else if ((typeof description) === "string") {
+        this.description = document.createElement("p");
+        this.description.innerText = description;
+      } else {
+        this.description = mobiledocRenderer
+          .render(data.attributes.description).result;
+      }
+
+      const datesString = data.attributes["date-and-time"];
+      if (datesString) {
+        const split = datesString.split("-");
+        this.assignDate(split[0], "start");
+        if (split.length > 1) {
+          this.assignDate(split[1], "end");
+        }
+      }
+    }
+  }
+
+  /**
+   * Represent a schedule track.
+   */
+  class ScheduleTrack extends YappObject {
+    constructor(data) {
+      super(data);
+
+      this.name = data.attributes.name;
+      this.sortOrder = data.attributes["sort-order"] || 0;
+      this.color = data.attributes.color;
+    }
+
+    static compareBySortOrder(a, b) {
+      return a.sortOrder - b.sortOrder;
+    }
+
+    resolveReferences(uuidToObj) {
+      this.events = ScheduleTrack.resolveEvents(
+        this.data.relationships["schedule-items"], uuidToObj);
+    }
+
+    /**
+     * Map the serialized schedule items to an array of ScheduleEvent instances.
+     */
+    static resolveEvents(scheduleItems, uuidToObj) {
+      const events = scheduleItems.data.map(eventData => uuidToObj[eventData.id]);
+      events.sort(ScheduleEvent.compareByDate);
+      return events;
+    }
+  }
+
+  /**
+   * Represent a page of the Yapp app.
+   */
+  class Page extends YappObject {
+    resolveReferences(uuidToObj) {
+      const relationships = this.data.relationships;
+
+      if (relationships === undefined) {
+        // Do nothing.
+      } else if (relationships.tracks !== undefined) {
+        // Multi-track schedule page.
+        // Resolve the references to existing ScheduleTracks.
+        this.tracks = relationships.tracks.data
+          .map(track => uuidToObj[track.id]);
+        this.tracks.sort(ScheduleTrack.compareBySortOrder);
+      } else if (relationships["schedule-items"] !== undefined) {
+        // Schedule page without tracks.
+        // Create a fake schedule track.
+        this.tracks = [
+          new FakeScheduleTrack(relationships["schedule-items"], uuidToObj)
+        ];
+      } else {
+        // Not a schedule page.
+        this.tracks = null;
+      }
+    }
+  }
+
+  /**
+   * Implement a fake schedule track interface for Yapp apps in the "schedule2"
+   * format, which do not organize the events into schedule tracks.
+   */
+  class FakeScheduleTrack {
+    constructor(scheduleItems, uuidToObj) {
+      this.name = "Schedule";
+      this.sortOrder = -1;
+      this.color = "#808080";
+      this.id = "faketrack";
+      this.events = ScheduleTrack.resolveEvents(scheduleItems, uuidToObj);
+    }
+  }
+
+  /**
+   * Information about this app.
+   */
+  class AppInfo extends YappObject {
+    constructor(data) {
+      super(data);
+
+      this.name = data.attributes.name;
+    }
+  }
+
+
+  class Yapp {
+    // Map a deserialized object's type attribute to the corresponding class.
+    static typeToClass = {
+      "schedule-items": ScheduleEvent,
+      "tracks": ScheduleTrack,
+      "yapps": AppInfo,
+      "pages": Page,
+    };
+
+    /**
+     * Return a Promise which resolves to the data for a Yapp app.
+     */
+    static async getRawYappData(yappId) {
+      const url = "https://www.yapp.us/api/preview/v2/yapps/"
+        + encodeURIComponent(yappId);
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Could not retrieve data for Yapp ID '${yappId}' `
+          + `(${response.status} ${response.statusText}). `
+          + "Please ensure that the Yapp ID or URL is entered correctly.");
+      }
+
+      return await response.json();
+    }
+
+    /**
+     * Return a dictionary which maps YappObject class names to lists of their
+     * instances.
+     */
+    static async getYappData(yappId) {
+      const rawData = await Yapp.getRawYappData(yappId);
+
+      const uuidToObj = {};
+      const classToInstances = {};
+
+      for (const objData of [rawData.data, ...rawData.included]) {
+        let objClass = Yapp.typeToClass[objData.type];
+        if (objClass === undefined) {
+          objClass = YappObject;
+        }
+
+        const obj = new objClass(objData);
+        uuidToObj[objData.id] = obj;
+
+        const className = obj.constructor.name;
+        if (classToInstances[className] === undefined) {
+          classToInstances[className] = [];
+        }
+        classToInstances[obj.constructor.name].push(obj);
+      }
+
+      for (const [id, obj] of Object.entries(uuidToObj)) {
+        obj.resolveReferences(uuidToObj);
+      }
+
+      // If no instances of a class exist, return an empty list instead of
+      // undefined.
+      return new Proxy(classToInstances, {
+        get: function(target, property, receiver) {
+          if (target[property] === undefined) {
+            return [];
+          } else {
+            return target[property];
+          }
+        }
+      });
+    }
+  }
+
+  return Yapp;
+});
