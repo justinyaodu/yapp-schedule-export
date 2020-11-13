@@ -1,6 +1,19 @@
 "use strict";
 
 /**
+ * Return an array of the ScheduleTracks in the deserialized data, or null if
+ * there are none.
+ */
+function findScheduleTracks(instancesOf) {
+  for (const page of instancesOf.Page) {
+    if (page.tracks !== null) {
+      return page.tracks;
+    }
+  }
+  return null;
+}
+
+/**
  * Display the schedule data and return whether anything was rendered.
  */
 function renderSchedule(instancesOf) {
@@ -14,12 +27,17 @@ function renderSchedule(instancesOf) {
     document.title = `${appName} - ${document.title}`;
   }
 
+  // Were any schedule tracks rendered?
   let contentsRendered = false;
-  instancesOf.ScheduleTrack.sort(ScheduleTrack.compareBySortOrder);
-  for (const track of instancesOf.ScheduleTrack) {
-    document.getElementById("schedule").appendChild(renderTrack(track));
-    contentsRendered = true;
+
+  const scheduleTracks = findScheduleTracks(instancesOf);
+  if (scheduleTracks !== null) {
+    for (const track of scheduleTracks) {
+      document.getElementById("schedule").appendChild(renderTrack(track));
+      contentsRendered = true;
+    }
   }
+
   return contentsRendered;
 }
 
