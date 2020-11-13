@@ -176,6 +176,7 @@ class FakeScheduleTrack {
     this.name = "Schedule";
     this.sortOrder = -1;
     this.color = "#808080";
+    this.id = "faketrack";
     this.events = ScheduleTrack.resolveEvents(scheduleItems, uuidToObj);
   }
 }
