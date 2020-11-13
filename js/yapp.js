@@ -118,18 +118,65 @@ class ScheduleTrack extends YappObject {
     super(data);
 
     this.name = data.attributes.name;
-    this.sortOrder = data.attributes["sort-order"];
+    this.sortOrder = data.attributes["sort-order"] || 0;
     this.color = data.attributes.color;
   }
 
   static compareBySortOrder(a, b) {
-    return (a.sortOrder || -1) - (b.sortOrder || -1);
+    return a.sortOrder - b.sortOrder;
   }
 
   resolveReferences(uuidToObj) {
-    this.events = this.data.relationships["schedule-items"].data
-      .map(eventData => uuidToObj[eventData.id]);
-    this.events.sort(ScheduleEvent.compareByDate);
+    this.events = ScheduleTrack.resolveEvents(
+      this.data.relationships["schedule-items"], uuidToObj);
+  }
+
+  /**
+   * Map the serialized schedule items to an array of ScheduleEvent instances.
+   */
+  static resolveEvents(scheduleItems, uuidToObj) {
+    const events = scheduleItems.data.map(eventData => uuidToObj[eventData.id]);
+    events.sort(ScheduleEvent.compareByDate);
+    return events;
+  }
+}
+
+/**
+ * Represent a page of the Yapp app.
+ */
+class Page extends YappObject {
+  resolveReferences(uuidToObj) {
+    const relationships = this.data.relationships;
+
+    if (relationships.tracks !== undefined) {
+      // Multi-track schedule page.
+      // Resolve the references to existing ScheduleTracks.
+      this.tracks = relationships.tracks.data
+        .map(track => uuidToObj[track.id]);
+      this.tracks.sort(ScheduleTrack.compareBySortOrder);
+    } else if (relationships["schedule-items"] !== undefined) {
+      // Schedule page without tracks.
+      // Create a fake schedule track.
+      this.tracks = [
+        new FakeScheduleTrack(relationships["schedule-items"], uuidToObj)
+      ];
+    } else {
+      // Not a schedule page.
+      this.tracks = null;
+    }
+  }
+}
+
+/**
+ * Implement a fake schedule track interface for Yapp apps in the "schedule2"
+ * format, which do not organize the events into schedule tracks.
+ */
+class FakeScheduleTrack {
+  constructor(scheduleItems, uuidToObj) {
+    this.name = "Schedule";
+    this.sortOrder = -1;
+    this.color = "#808080";
+    this.events = ScheduleTrack.resolveEvents(scheduleItems, uuidToObj);
   }
 }
 
@@ -149,6 +196,7 @@ const typeToClass = {
   "schedule-items": ScheduleEvent,
   "tracks": ScheduleTrack,
   "yapps": AppInfo,
+  "pages": Page,
 };
 
 /**
