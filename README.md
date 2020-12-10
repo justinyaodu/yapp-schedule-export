@@ -1,6 +1,6 @@
-# [Yapp Schedule Exporter](https://justinyaodu.com/tools/yapp-schedule-exporter)
+# [Yapp Schedule Exporter](https://justinyaodu.com/yapp-schedule-exporter)
 
-View [Yapp](https://www.yapp.us/) schedules in a web browser and export events to your personal calendar. Click [here](https://justinyaodu.com/tools/yapp-schedule-exporter/?q=DEMO) for a demo.
+View [Yapp](https://www.yapp.us/) schedules in a web browser and export events to your personal calendar. Click [here](https://justinyaodu.com/yapp-schedule-exporter/?q=DEMO) for a demo.
 
 ## Features
 
